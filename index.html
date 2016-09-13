@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Playing with LCBO API in JS</title>
+  </head>
+  <body>
+    <h1>LCBO Stores</h1>
+    <ul id="stores"></ul>
+
+    <script>
+      function displayStores() {
+        function displayPage(page){
+          // Build the request: URL & Headers
+          var request = new Request('https://lcboapi.com/stores?per_page=100&page='+page, {
+            headers: new Headers({
+              // Sending this token/password to the API (key). You can also send it as a query param. A header is a way to send info w the request.
+              'Authorization': 'Token MDo2YzNjYzBiYy03ODY1LTExZTYtOWVjYy1jYmJlNGQwYWM2MzY6WGFhWERJdnhhVU1SR1kzbjZ3SFQ4ZUhxaWF5SGJ1MXNiY3pD'
+            })
+          });
+
+          // this is HTTP.get(url).parse(:json) in ruby: Execute the Request (goes and does it).
+          fetch(request).then(function(response){
+            // Get the JSON from the response
+            return response.json();
+          }).then(function(json) {
+            // Process the JSON. It's like: json['result'].each do |store| end
+            var storesList = document.getElementById('stores');
+            json.result.forEach(function(store) {
+              storesList.innerHTML += '<li>' + store.name + '</li>';
+            });
+            // If there are records on this page...
+            if (json.result.length > 0) {
+              // display next page. Recursive function - calls same function we're in.
+              displayPage(page + 1);
+            }
+          });
+        }
+        displayPage(1);
+      }
+
+      displayStores();
+    </script>
+  </body>
+</html>
